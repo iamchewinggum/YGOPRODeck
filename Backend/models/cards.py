@@ -10,3 +10,5 @@ class Card:
         self.race = race
         self.attribute = attribute  
         self.image_url = image_url
+
+  

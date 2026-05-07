@@ -1,8 +1,8 @@
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
+    username VARCHAR(255) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+    google_id VARCHAR(255) NOT NULL UNIQUE,
     profile_image_url TEXT
 );
 
