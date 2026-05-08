@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YGOPRODeck — Find Duelists</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96d;
+    --gold-dim: #7a5f2a;
+    --black: #050403;
+    --surface: #13110d;
+    --surface2: #1c1812;
+    --surface3: #242018;
+    --text: #e8dcc8;
+    --text-dim: #8a7a5e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(201,168,76,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(5,4,3,0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+
+  .header-logo {
+    font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 900;
+    color: var(--gold); letter-spacing: 0.15em; text-decoration: none;
+  }
+
+  .header-nav { display: flex; gap: 1rem; align-items: center; }
+
+  .nav-link {
+    font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-dim); text-decoration: none;
+    cursor: pointer; transition: color 0.2s; background: none; border: none;
+  }
+
+  .nav-link:hover { color: var(--gold); }
+  .nav-link.active { color: var(--gold); }
+
+  main {
+    max-width: 1100px; margin: 0 auto;
+    padding: 2.5rem 2rem;
+    position: relative; z-index: 1;
+  }
+
+  /* ===== USER LIST VIEW ===== */
+  #user-list-view { animation: fadeIn 0.3s ease; }
+
+  .page-header { margin-bottom: 2rem; }
+
+  .page-header h1 {
+    font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: 900;
+    color: var(--gold); letter-spacing: 0.05em; margin-bottom: 0.4rem;
+  }
+
+  .page-header p { color: var(--text-dim); font-size: 0.95rem; }
+
+  .users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .user-card {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 2px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .user-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+
+  .user-card:hover { border-color: rgba(201,168,76,0.35); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .user-card:hover::before { opacity: 1; }
+
+  .user-avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid rgba(201,168,76,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 1rem;
+  }
+
+  .user-name {
+    font-family: 'Cinzel', serif; font-size: 0.9rem;
+    color: var(--gold-light); margin-bottom: 0.3rem;
+  }
+
+  .user-id {
+    font-size: 0.72rem; color: var(--text-dim);
+  }
+
+  /* ===== COLLECTION VIEW ===== */
+  #collection-view { display: none; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-dim);
+    background: none; border: none; cursor: pointer;
+    transition: color 0.2s; margin-bottom: 2rem;
+    padding: 0;
+  }
+
+  .back-btn:hover { color: var(--gold); }
+
+  .collection-hero {
+    display: flex; align-items: center; gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .collection-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid rgba(201,168,76,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; flex-shrink: 0;
+  }
+
+  .collection-hero-info h2 {
+    font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 900;
+    color: var(--gold); margin-bottom: 0.3rem;
+  }
+
+  .collection-hero-info p { color: var(--text-dim); font-size: 0.85rem; }
+
+  .section-label {
+    font-family: 'Cinzel', serif; font-size: 0.65rem;
+    letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 1.25rem;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 1rem;
+  }
+
+  .card-tile {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 2px; overflow: hidden;
+    transition: all 0.25s;
+  }
+
+  .card-tile:hover { border-color: rgba(201,168,76,0.35); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+  .card-tile img { width: 100%; aspect-ratio: 421/614; object-fit: cover; display: block; background: var(--surface2); }
+
+  .card-tile-info { padding: 0.6rem; }
+  .card-tile-name { font-size: 0.72rem; color: var(--text); line-height: 1.3; margin-bottom: 0.2rem; }
+  .card-tile-type { font-size: 0.62rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+  .card-tile-meta { display: flex; justify-content: space-between; align-items: center; }
+  .card-qty { font-family: 'Cinzel', serif; font-size: 0.65rem; color: var(--gold); }
+  .card-condition { font-size: 0.6rem; color: var(--text-dim); }
+
+  .img-placeholder {
+    width: 100%; aspect-ratio: 421/614;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); font-size: 2rem;
+  }
+
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); grid-column: 1 / -1; }
+  .empty-symbol { font-size: 3rem; margin-bottom: 1rem; opacity: 0.25; display: block; }
+
+  .loading { text-align: center; padding: 3rem; color: var(--text-dim); font-size: 0.85rem; }
+
+  .spinner {
+    display: inline-block; width: 20px; height: 20px;
+    border: 2px solid rgba(201,168,76,0.2); border-top-color: var(--gold);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem; vertical-align: middle;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="header-logo" href="/">⚜ YGOPRODeck</a>
+  <nav class="header-nav">
+    <a class="nav-link" href="/profile">My Collection</a>
+    <a class="nav-link active" href="/users">Find Duelists</a>
+    <button class="nav-link" onclick="handleLogout()">Logout</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- USER LIST -->
+  <div id="user-list-view">
+    <div class="page-header">
+      <h1>Find Duelists</h1>
+      <p>Browse public card collections from other players</p>
+    </div>
+    <div style="margin-bottom:1.5rem; max-width:400px;">
+      <input type="text" id="user-search" placeholder="Search by username..."
+        oninput="filterUsers()"
+        style="width:100%; background:var(--surface); border:1px solid rgba(201,168,76,0.2); border-radius:2px; padding:0.75rem 1rem; color:var(--text); font-family:'Crimson Pro',serif; font-size:1rem; outline:none; transition:border-color 0.2s;">
+    </div>
+    <div id="users-container">
+      <div class="loading"><span class="spinner"></span> Loading duelists...</div>
+    </div>
+  </div>
+
+  <!-- COLLECTION VIEW -->
+  <div id="collection-view">
+    <button class="back-btn" onclick="showUserList()">← Back to Duelists</button>
+    <div class="collection-hero">
+      <div class="collection-avatar">⚜</div>
+      <div class="collection-hero-info">
+        <h2 id="cv-username"></h2>
+        <p id="cv-subtitle"></p>
+      </div>
+    </div>
+    <div class="section-label">Collection</div>
+    <div class="cards-grid" id="cv-cards"></div>
+  </div>
+
+</main>
+
+<script>
+  const API = '';
+  let currentUserId = null;
+  let allUsers = [];
+
+  (async () => {
+    try {
+      const res = await fetch(`${API}/api/auth/me`, { credentials: 'include' });
+      if (!res.ok) { window.location.href = '/'; return; }
+      const user = await res.json();
+      currentUserId = user.user_id;
+      await loadUsers();
+    } catch { window.location.href = '/'; }
+  })();
+
+  async function loadUsers() {
+    const container = document.getElementById('users-container');
+    try {
+      const res = await fetch(`${API}/api/users`, { credentials: 'include' });
+      const data = await res.json();
+      const users = (data.users || []).filter(u => u.user_id !== currentUserId);
+      allUsers = users;
+      renderUserGrid(users);
+    } catch {
+      container.innerHTML = `<div class="empty-state"><span class="empty-symbol">⚠</span><p>Could not load users. Is the server running?</p></div>`;
+    }
+  }
+
+  function renderUserGrid(users) {
+    const container = document.getElementById('users-container');
+    if (users.length === 0) {
+      container.innerHTML = `<div class="empty-state"><span class="empty-symbol">⚜</span><p>No duelists found.</p></div>`;
+      return;
+    }
+    container.innerHTML = `<div class="users-grid">${users.map(u => `
+      <div class="user-card" onclick="viewCollection(${u.user_id}, '${escHtml(u.username)}')">
+        <div class="user-avatar">⚔</div>
+        <div class="user-name">${escHtml(u.username)}</div>
+        <div class="user-id">ID: ${u.user_id}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  function filterUsers() {
+    const q = document.getElementById('user-search').value.toLowerCase();
+    const filtered = allUsers.filter(u => u.username.toLowerCase().includes(q));
+    renderUserGrid(filtered);
+  }
+
+  async function viewCollection(userId, username) {
+    document.getElementById('user-list-view').style.display = 'none';
+    const cv = document.getElementById('collection-view');
+    cv.style.display = 'block';
+    document.getElementById('cv-username').textContent = username + "'s Collection";
+    document.getElementById('cv-subtitle').textContent = 'Loading...';
+    document.getElementById('cv-cards').innerHTML = `<div class="loading" style="grid-column:1/-1"><span class="spinner"></span></div>`;
+
+    try {
+      const res = await fetch(`${API}/api/users/${userId}/collection`, { credentials: 'include' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        document.getElementById('cv-subtitle').textContent = data.error || 'Could not load collection';
+        document.getElementById('cv-cards').innerHTML = '';
+        return;
+      }
+
+      const total = data.total_cards || 0;
+      document.getElementById('cv-subtitle').textContent = `${total} card${total !== 1 ? 's' : ''} in collection`;
+
+      const cards = data.collection || [];
+      if (cards.length === 0) {
+        document.getElementById('cv-cards').innerHTML = `<div class="empty-state"><span class="empty-symbol">🃏</span><p>This duelist has no cards yet.</p></div>`;
+        return;
+      }
+
+      document.getElementById('cv-cards').innerHTML = cards.map(c => `
+        <div class="card-tile">
+          ${c.image_url
+            ? `<img src="${c.image_url}" alt="${escHtml(c.name)}" onerror="this.outerHTML='<div class=img-placeholder>🃏</div>'">`
+            : `<div class="img-placeholder">🃏</div>`}
+          <div class="card-tile-info">
+            <div class="card-tile-name">${escHtml(c.name)}</div>
+            <div class="card-tile-type">${escHtml(c.card_type || '')}</div>
+            <div class="card-tile-meta">
+              <span class="card-qty">×${c.quantity || 1}</span>
+              <span class="card-condition">${formatCondition(c.condition)}</span>
+            </div>
+          </div>
+        </div>`).join('');
+    } catch {
+      document.getElementById('cv-subtitle').textContent = 'Failed to load collection';
+      document.getElementById('cv-cards').innerHTML = '';
+    }
+  }
+
+  function showUserList() {
+    document.getElementById('collection-view').style.display = 'none';
+    document.getElementById('user-list-view').style.display = 'block';
+  }
+
+  async function handleLogout() {
+    await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+    window.location.href = '/';
+  }
+
+  function formatCondition(c) {
+    return { near_mint:'NM', lightly_played:'LP', moderately_played:'MP', heavily_played:'HP', damaged:'DMG' }[c] || c || '';
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>

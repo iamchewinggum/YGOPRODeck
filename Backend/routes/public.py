@@ -4,12 +4,22 @@ from db import get_db
 public_bp = Blueprint("public", __name__, url_prefix="/api/users")
 
 
+@public_bp.route("", methods=["GET"])
+def get_public_users():
+    db = get_db()
+    cur = db.cursor()
+    cur.execute(
+        "SELECT user_id, username FROM users WHERE is_public = TRUE ORDER BY created_at DESC"
+    )
+    users = [dict(row) for row in cur.fetchall()]
+    return jsonify({"users": users})
+
+
 @public_bp.route("/<int:user_id>/collection", methods=["GET"])
 def get_public_collection(user_id):
     db = get_db()
     cur = db.cursor()
 
-    # Check user exists and is public
     cur.execute("SELECT user_id, username, is_public FROM users WHERE user_id = %s", (user_id,))
     user = cur.fetchone()
     if not user:

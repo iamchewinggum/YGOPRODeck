@@ -8,6 +8,7 @@ from routes.collection import collection_bp
 from routes.cards import cards_bp
 from routes.public import public_bp
 from routes.profile import profile_bp
+from routes.pages import pages_bp
 
 def create_app():
     app = Flask(__name__)
@@ -31,14 +32,11 @@ def create_app():
     app.register_blueprint(cards_bp)
     app.register_blueprint(public_bp)
     app.register_blueprint(profile_bp)
+    app.register_blueprint(pages_bp)
 
     # --- Initialize Database ---
     with app.app_context():
         init_db()
-
-    # --- Frontend Pages (uncomment when templates are ready) ---
-    # from routes.pages import pages_bp
-    # app.register_blueprint(pages_bp)
 
     return app
 

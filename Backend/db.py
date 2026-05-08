@@ -1,7 +1,11 @@
 import os
+from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from flask import g
+
+
+load_dotenv()
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
