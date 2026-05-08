@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Yu-Gi-Oh Collector{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-logo">YGO Collector</a>
+        <div class="nav-links">
+            <a href="/search">Search Cards</a>
+            <span id="auth-links">
+                <!-- Filled by JS based on login state -->
+            </span>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="/static/js/auth.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

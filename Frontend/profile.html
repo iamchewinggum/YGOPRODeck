@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YGOPRODeck — My Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96d;
+    --gold-dim: #7a5f2a;
+    --black: #050403;
+    --surface: #13110d;
+    --surface2: #1c1812;
+    --surface3: #242018;
+    --text: #e8dcc8;
+    --text-dim: #8a7a5e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,4,3,0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .header-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-decoration: none;
+  }
+
+  .header-nav { display: flex; gap: 1rem; align-items: center; }
+
+  .nav-link {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+  }
+
+  .nav-link:hover { color: var(--gold); }
+  .nav-link.active { color: var(--gold); }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid rgba(201,168,76,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .profile-info h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--gold);
+  }
+
+  .profile-info p { color: var(--text-dim); font-size: 0.9rem; margin-top: 0.25rem; }
+
+  .profile-stats { display: flex; gap: 2rem; margin-top: 0.75rem; }
+
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    font-weight: 600;
+    display: block;
+  }
+
+  .stat-label { font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+
+  .btn {
+    padding: 0.6rem 1.25rem;
+    border-radius: 2px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .btn-primary { background: linear-gradient(135deg, var(--gold-dim), var(--gold)); color: var(--black); }
+  .btn-primary:hover { box-shadow: 0 0 18px rgba(201,168,76,0.35); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+  .btn-outline:hover { border-color: var(--gold); background: rgba(201,168,76,0.05); }
+  .btn-danger { background: transparent; color: #e74c3c; border: 1px solid rgba(231,76,60,0.3); }
+  .btn-danger:hover { border-color: #e74c3c; background: rgba(231,76,60,0.05); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+  .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.6rem; }
+
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 1.25rem;
+  }
+
+  .collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 1rem;
+  }
+
+  .card-tile {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+
+  .card-tile:hover { border-color: rgba(201,168,76,0.35); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+  .card-tile img { width: 100%; aspect-ratio: 421/614; object-fit: cover; display: block; background: var(--surface2); }
+
+  .card-tile-info { padding: 0.6rem; }
+  .card-tile-name { font-size: 0.72rem; color: var(--text); line-height: 1.3; margin-bottom: 0.2rem; }
+  .card-tile-type { font-size: 0.62rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+  .card-tile-meta { display: flex; justify-content: space-between; align-items: center; }
+  .card-qty { font-family: 'Cinzel', serif; font-size: 0.65rem; color: var(--gold); }
+  .card-condition { font-size: 0.6rem; color: var(--text-dim); }
+
+  .img-placeholder {
+    width: 100%; aspect-ratio: 421/614;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); font-size: 2rem;
+  }
+
+  .empty-state { text-align: center; padding: 5rem 2rem; color: var(--text-dim); grid-column: 1 / -1; }
+  .empty-symbol { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.25; display: block; }
+  .empty-state p { font-size: 0.9rem; }
+
+  .loading { text-align: center; padding: 4rem; color: var(--text-dim); font-size: 0.85rem; grid-column: 1 / -1; }
+
+  .spinner {
+    display: inline-block; width: 20px; height: 20px;
+    border: 2px solid rgba(201,168,76,0.2); border-top-color: var(--gold);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem; vertical-align: middle;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* MODALS */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 2px;
+    width: 100%; max-width: 750px; max-height: 88vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 0 80px rgba(0,0,0,0.8);
+    transform: translateY(20px); transition: transform 0.3s;
+    position: relative;
+  }
+
+  .modal-overlay.show .modal { transform: translateY(0); }
+
+  .modal::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .modal-title { font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+
+  .modal-close { background: none; border: none; color: var(--text-dim); font-size: 1.1rem; cursor: pointer; transition: color 0.2s; padding: 0.25rem 0.5rem; }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-body { padding: 1.5rem 2rem; overflow-y: auto; flex: 1; }
+
+  .modal-footer { padding: 1rem 2rem; border-top: 1px solid rgba(201,168,76,0.1); display: flex; gap: 0.75rem; justify-content: flex-end; flex-shrink: 0; }
+
+  .search-bar { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+
+  .search-bar input {
+    flex: 1;
+    background: var(--surface2); border: 1px solid rgba(201,168,76,0.2); border-radius: 2px;
+    padding: 0.75rem 1rem; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 1rem;
+    outline: none; transition: border-color 0.2s;
+  }
+
+  .search-bar input:focus { border-color: rgba(201,168,76,0.5); }
+  .search-bar input::placeholder { color: var(--text-dim); opacity: 0.5; }
+
+  .search-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; }
+
+  .result-card { background: var(--surface2); border: 1px solid rgba(201,168,76,0.1); border-radius: 2px; overflow: hidden; transition: all 0.2s; }
+  .result-card:hover { border-color: rgba(201,168,76,0.35); transform: translateY(-2px); }
+  .result-card img { width: 100%; aspect-ratio: 421/614; object-fit: cover; display: block; background: var(--surface3); }
+  .result-card-info { padding: 0.5rem 0.6rem 0; }
+  .result-card-name { font-size: 0.7rem; color: var(--text); line-height: 1.3; margin-bottom: 0.15rem; }
+  .result-card-type { font-size: 0.62rem; color: var(--text-dim); margin-bottom: 0.4rem; }
+
+  .result-card-add {
+    width: 100%; padding: 0.45rem;
+    background: rgba(201,168,76,0.08); border: none; border-top: 1px solid rgba(201,168,76,0.15);
+    color: var(--gold); font-family: 'Cinzel', serif; font-size: 0.58rem; letter-spacing: 0.1em;
+    cursor: pointer; transition: background 0.2s;
+  }
+
+  .result-card-add:hover { background: rgba(201,168,76,0.18); }
+  .result-card-add:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .remove-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .remove-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface2); border: 1px solid rgba(201,168,76,0.08); border-radius: 2px;
+    transition: border-color 0.2s;
+  }
+
+  .remove-row:hover { border-color: rgba(231,76,60,0.25); }
+
+  .remove-row img { width: 38px; height: 55px; object-fit: cover; border-radius: 1px; flex-shrink: 0; background: var(--surface3); }
+  .remove-row-info { flex: 1; }
+  .remove-row-name { font-size: 0.88rem; color: var(--text); margin-bottom: 0.15rem; }
+  .remove-row-meta { font-size: 0.72rem; color: var(--text-dim); }
+
+  .card-detail-content { display: flex; gap: 2rem; }
+  .card-detail-img { width: 160px; flex-shrink: 0; }
+  .card-detail-img img { width: 100%; border-radius: 2px; border: 1px solid rgba(201,168,76,0.2); }
+  .card-detail-info h3 { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; }
+  .card-detail-type { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .card-detail-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .stat-pill { font-family: 'Cinzel', serif; font-size: 0.65rem; color: var(--text-dim); }
+  .stat-pill span { color: var(--gold); }
+
+  .modal-field { margin-bottom: 1rem; }
+  .modal-field label { display: block; font-family: 'Cinzel', serif; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.4rem; }
+
+  .modal-field input, .modal-field select {
+    width: 100%; background: var(--surface2); border: 1px solid rgba(201,168,76,0.2); border-radius: 2px;
+    padding: 0.7rem 1rem; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 1rem;
+    outline: none; transition: border-color 0.2s;
+  }
+
+  .modal-field input:focus, .modal-field select:focus { border-color: rgba(201,168,76,0.5); }
+  .modal-field select option { background: var(--surface2); }
+
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: var(--surface); border: 1px solid rgba(201,168,76,0.3); border-radius: 2px;
+    padding: 0.75rem 1.5rem; font-size: 0.85rem; color: var(--text);
+    z-index: 500; transform: translateY(100px); opacity: 0;
+    transition: all 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(39,174,96,0.4); color: #2ecc71; }
+  .toast.error { border-color: rgba(231,76,60,0.4); color: #e74c3c; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="header-logo" href="/">⚜ YGOPRODeck</a>
+  <nav class="header-nav">
+    <a class="nav-link active" href="/profile">My Collection</a>
+    <a class="nav-link" href="/users">Find Duelists</a>
+    <button class="nav-link" onclick="handleLogout()">Logout</button>
+  </nav>
+</header>
+
+<main>
+  <div class="profile-hero">
+    <div class="avatar" id="avatar-el">⚜</div>
+    <div class="profile-info">
+      <h2 id="profile-username">Loading...</h2>
+      <p id="profile-email"></p>
+      <div class="profile-stats">
+        <div>
+          <span class="stat-num" id="stat-unique">0</span>
+          <span class="stat-label">Unique Cards</span>
+        </div>
+        <div>
+          <span class="stat-num" id="stat-total">0</span>
+          <span class="stat-label">Total Cards</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-primary" onclick="openSearchModal()">⚔ Add Card</button>
+    <button class="btn btn-danger" onclick="openRemoveModal()">✕ Remove Card</button>
+  </div>
+
+  <div class="section-label">My Collection</div>
+  <div class="collection-grid" id="collection-grid">
+    <div class="loading"><span class="spinner"></span> Loading collection...</div>
+  </div>
+</main>
+
+<!-- SEARCH / ADD MODAL -->
+<div class="modal-overlay" id="search-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Search & Add Cards</span>
+      <button class="modal-close" onclick="closeModal('search-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="search-bar">
+        <input type="text" id="card-search-input" placeholder="Type a card name..."
+          onkeydown="if(event.key==='Enter') searchCards()">
+        <button class="btn btn-primary" onclick="searchCards()">Search</button>
+      </div>
+      <div id="search-results-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REMOVE MODAL -->
+<div class="modal-overlay" id="remove-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <span class="modal-title">Remove a Card</span>
+      <button class="modal-close" onclick="closeModal('remove-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="remove-list-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CARD DETAIL / EDIT MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <span class="modal-title" id="detail-modal-title">Card Details</span>
+      <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="card-detail-content" id="card-detail-content"></div>
+      <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(201,168,76,0.1)">
+        <div style="display:flex; gap:1rem">
+          <div class="modal-field" style="flex:1">
+            <label>Quantity</label>
+            <input type="number" id="detail-quantity" min="1" max="99">
+          </div>
+          <div class="modal-field" style="flex:1">
+            <label>Condition</label>
+            <select id="detail-condition">
+              <option value="near_mint">Near Mint</option>
+              <option value="lightly_played">Lightly Played</option>
+              <option value="moderately_played">Moderately Played</option>
+              <option value="heavily_played">Heavily Played</option>
+              <option value="damaged">Damaged</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('detail-modal')">Close</button>
+      <button class="btn btn-primary" onclick="saveCardUpdate()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = '';
+  let currentUser = null;
+  let collection = [];
+  let selectedEntryId = null;
+
+  (async () => {
+    try {
+      const res = await fetch(`${API}/api/auth/me`, { credentials: 'include' });
+      if (!res.ok) { window.location.href = '/'; return; }
+      currentUser = await res.json();
+      document.getElementById('profile-username').textContent = currentUser.username;
+      document.getElementById('profile-email').textContent = currentUser.email;
+      if (currentUser.profile_image) {
+        document.getElementById('avatar-el').innerHTML = `<img src="${currentUser.profile_image}" alt="avatar">`;
+      }
+      await loadCollection();
+    } catch { window.location.href = '/'; }
+  })();
+
+  async function loadCollection() {
+    try {
+      const res = await fetch(`${API}/api/collection`, { credentials: 'include' });
+      const data = await res.json();
+      collection = data.collection || [];
+      renderCollection();
+    } catch {
+      showToast('Failed to load collection', 'error');
+      document.getElementById('collection-grid').innerHTML = `<div class="empty-state"><span class="empty-symbol">⚠</span><p>Could not load collection. Is the server running?</p></div>`;
+    }
+  }
+
+  function renderCollection() {
+    document.getElementById('stat-unique').textContent = collection.length;
+    document.getElementById('stat-total').textContent = collection.reduce((s, e) => s + (e.quantity || 1), 0);
+
+    const grid = document.getElementById('collection-grid');
+    if (collection.length === 0) {
+      grid.innerHTML = `<div class="empty-state"><span class="empty-symbol">🃏</span><p>Your collection is empty. Add your first card!</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = collection.map(entry => `
+      <div class="card-tile" onclick="openCardDetail(${entry.entry_id})">
+        ${entry.image_url
+          ? `<img src="${entry.image_url}" alt="${escHtml(entry.name)}" onerror="this.outerHTML='<div class=img-placeholder>🃏</div>'">`
+          : `<div class="img-placeholder">🃏</div>`}
+        <div class="card-tile-info">
+          <div class="card-tile-name">${escHtml(entry.name)}</div>
+          <div class="card-tile-type">${escHtml(entry.card_type || '')}</div>
+          <div class="card-tile-meta">
+            <span class="card-qty">×${entry.quantity || 1}</span>
+            <span class="card-condition">${formatCondition(entry.condition)}</span>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // SEARCH & ADD
+  function openSearchModal() {
+    document.getElementById('card-search-input').value = '';
+    document.getElementById('search-results-container').innerHTML = '';
+    openModal('search-modal');
+    setTimeout(() => document.getElementById('card-search-input').focus(), 100);
+  }
+
+  async function searchCards() {
+    const q = document.getElementById('card-search-input').value.trim();
+    if (!q) return;
+    const container = document.getElementById('search-results-container');
+    container.innerHTML = `<div class="loading"><span class="spinner"></span> Searching...</div>`;
+
+    try {
+      const res = await fetch(`${API}/api/cards/search?q=${encodeURIComponent(q)}`, { credentials: 'include' });
+      const data = await res.json();
+      const cards = data.cards || [];
+
+      if (cards.length === 0) {
+        container.innerHTML = `<div class="empty-state" style="padding:2rem;grid-column:unset"><p>No cards found for "${escHtml(q)}"</p></div>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="search-results">${cards.map(c => `
+        <div class="result-card">
+          ${c.image_url
+            ? `<img src="${c.image_url}" alt="${escHtml(c.name)}" onerror="this.outerHTML='<div class=img-placeholder style=aspect-ratio:421/614>🃏</div>'">`
+            : `<div class="img-placeholder" style="aspect-ratio:421/614">🃏</div>`}
+          <div class="result-card-info">
+            <div class="result-card-name">${escHtml(c.name)}</div>
+            <div class="result-card-type">${escHtml(c.card_type || '')}</div>
+          </div>
+          <button class="result-card-add" onclick='addCard(${JSON.stringify(c).replace(/'/g,"&#39;")}, this)'>＋ Add to Collection</button>
+        </div>`).join('')}
+      </div>`;
+    } catch {
+      container.innerHTML = `<div class="empty-state" style="padding:2rem;grid-column:unset"><p>Search failed. Is the server running?</p></div>`;
+    }
+  }
+
+  async function addCard(card, btn) {
+    btn.textContent = 'Adding...';
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API}/api/collection`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...card, quantity: 1, condition: 'near_mint' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to add');
+      btn.textContent = '✓ Added';
+      btn.style.color = '#2ecc71';
+      await loadCollection();
+      showToast(`${card.name} added!`, 'success');
+    } catch (err) {
+      btn.textContent = '＋ Add to Collection';
+      btn.disabled = false;
+      showToast(err.message, 'error');
+    }
+  }
+
+  // REMOVE
+  function openRemoveModal() {
+    const container = document.getElementById('remove-list-container');
+    if (collection.length === 0) {
+      container.innerHTML = `<div class="empty-state" style="padding:2rem;grid-column:unset"><p>Your collection is empty.</p></div>`;
+    } else {
+      container.innerHTML = `<div class="remove-list">${collection.map(entry => `
+        <div class="remove-row" id="remove-row-${entry.entry_id}">
+          ${entry.image_url ? `<img src="${entry.image_url}" alt="${escHtml(entry.name)}" onerror="this.style.display='none'">` : ''}
+          <div class="remove-row-info">
+            <div class="remove-row-name">${escHtml(entry.name)}</div>
+            <div class="remove-row-meta">×${entry.quantity || 1} · ${formatCondition(entry.condition)}</div>
+          </div>
+          <button class="btn btn-sm btn-danger" onclick="removeCard(${entry.entry_id}, this)">Delete</button>
+        </div>`).join('')}
+      </div>`;
+    }
+    openModal('remove-modal');
+  }
+
+  async function removeCard(entryId, btn) {
+    btn.textContent = '...';
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API}/api/collection/${entryId}`, { method: 'DELETE', credentials: 'include' });
+      if (!res.ok) throw new Error('Failed');
+      document.getElementById(`remove-row-${entryId}`)?.remove();
+      collection = collection.filter(e => e.entry_id !== entryId);
+      renderCollection();
+      showToast('Card removed', 'success');
+    } catch {
+      btn.textContent = 'Delete';
+      btn.disabled = false;
+      showToast('Failed to remove card', 'error');
+    }
+  }
+
+  // CARD DETAIL / EDIT
+  function openCardDetail(entryId) {
+    const entry = collection.find(e => e.entry_id === entryId);
+    if (!entry) return;
+    selectedEntryId = entryId;
+    document.getElementById('detail-modal-title').textContent = entry.name;
+    document.getElementById('detail-quantity').value = entry.quantity || 1;
+    document.getElementById('detail-condition').value = entry.condition || 'near_mint';
+    document.getElementById('card-detail-content').innerHTML = `
+      <div class="card-detail-img">
+        ${entry.image_url ? `<img src="${entry.image_url}" alt="${escHtml(entry.name)}">` : `<div class="img-placeholder" style="aspect-ratio:421/614;border-radius:2px">🃏</div>`}
+      </div>
+      <div class="card-detail-info">
+        <h3>${escHtml(entry.name)}</h3>
+        <div class="card-detail-type">${escHtml(entry.card_type || '')}</div>
+        <div class="card-detail-stats">
+          ${entry.atk != null ? `<div class="stat-pill">ATK <span>${entry.atk}</span></div>` : ''}
+          ${entry.defense != null ? `<div class="stat-pill">DEF <span>${entry.defense}</span></div>` : ''}
+          ${entry.level != null ? `<div class="stat-pill">LVL <span>${entry.level}</span></div>` : ''}
+          ${entry.attribute ? `<div class="stat-pill">ATTR <span>${escHtml(entry.attribute)}</span></div>` : ''}
+          ${entry.race ? `<div class="stat-pill">TYPE <span>${escHtml(entry.race)}</span></div>` : ''}
+        </div>
+      </div>`;
+    openModal('detail-modal');
+  }
+
+  async function saveCardUpdate() {
+    if (!selectedEntryId) return;
+    const quantity = parseInt(document.getElementById('detail-quantity').value);
+    const condition = document.getElementById('detail-condition').value;
+    try {
+      const res = await fetch(`${API}/api/collection/${selectedEntryId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ quantity, condition })
+      });
+      if (!res.ok) throw new Error('Update failed');
+      const entry = collection.find(e => e.entry_id === selectedEntryId);
+      if (entry) { entry.quantity = quantity; entry.condition = condition; }
+      renderCollection();
+      closeModal('detail-modal');
+      showToast('Card updated!', 'success');
+    } catch { showToast('Failed to update card', 'error'); }
+  }
+
+  async function handleLogout() {
+    await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+    window.location.href = '/';
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add('show'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); });
+  });
+
+  let toastTimer;
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast show ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function formatCondition(c) {
+    return { near_mint:'NM', lightly_played:'LP', moderately_played:'MP', heavily_played:'HP', damaged:'DMG' }[c] || c || '';
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>

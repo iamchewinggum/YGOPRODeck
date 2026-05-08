@@ -1,0 +1,6 @@
+flask
+flask-limiter
+psycopg2-binary
+requests
+boto3
+gunicorn
