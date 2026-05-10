@@ -6,8 +6,8 @@ from db import get_db
 
 profile_bp = Blueprint("profile", __name__, url_prefix="/api/profile")
 
-S3_BUCKET = os.environ.get("S3_BUCKET", "user-profile-images-910520206984-us-east-2-an")
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-2")
+S3_BUCKET = os.environ.get("S3_BUCKET")
+AWS_REGION = os.environ.get("AWS_REGION")
 
 
 def get_s3_client():

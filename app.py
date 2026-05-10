@@ -3,12 +3,15 @@ from flask import Flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from db import init_db, get_db
-from routes.auth import auth_bp
-from routes.collection import collection_bp
-from routes.cards import cards_bp
-from routes.public import public_bp
-from routes.profile import profile_bp
-from routes.pages import pages_bp
+from Backend.routes.auth import auth_bp
+from Backend.routes.collection import collection_bp
+from Backend.routes.cards import cards_bp
+from Backend.routes.public import public_bp
+from Backend.routes.profile import profile_bp
+from Backend.routes.pages import pages_bp
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def create_app():
     app = Flask(__name__)

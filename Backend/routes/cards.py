@@ -1,5 +1,6 @@
 import os
 import requests
+import boto3
 from flask import Blueprint, request, jsonify
 from db import get_db
 
@@ -7,31 +8,48 @@ cards_bp = Blueprint("cards", __name__, url_prefix="/api/cards")
 
 YGOPRODECK_URL = "https://db.ygoprodeck.com/api/v7/cardinfo.php"
 
-# Where to store downloaded card images locally
-IMAGE_DIR = os.path.join(os.path.dirname(__file__), "..", "static", "images", "cards")
-os.makedirs(IMAGE_DIR, exist_ok=True)
+S3_BUCKET = os.environ.get("S3_BUCKET")
+AWS_REGION = os.environ.get("AWS_REGION")
+
+
+def get_s3_client():
+    return boto3.client("s3", region_name=AWS_REGION)
 
 
 def download_card_image(image_url, ygoprodeck_id):
-    """Download a card image and save it locally. Returns the local path."""
+    """Download a card image and upload it to S3. Returns the S3 URL."""
     if not image_url:
         return None
 
-    # Check if we already downloaded it
-    filename = f"{ygoprodeck_id}.jpg"
-    local_path = os.path.join(IMAGE_DIR, filename)
+    s3_key = f"cards/{ygoprodeck_id}.jpg"
+    s3_url = f"https://{S3_BUCKET}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
 
-    if os.path.exists(local_path):
-        return f"/static/images/cards/{filename}"
+    # Check if it already exists in S3
+    try:
+        s3 = get_s3_client()
+        s3.head_object(Bucket=S3_BUCKET, Key=s3_key)
+        return s3_url
+    except:
+        pass
 
+    # Download from YGOPRODeck
     try:
         resp = requests.get(image_url, timeout=15)
         resp.raise_for_status()
-        with open(local_path, "wb") as f:
-            f.write(resp.content)
-        return f"/static/images/cards/{filename}"
     except requests.RequestException:
-        # If download fails, return None — we won't hotlink
+        return None
+
+    # Upload to S3
+    try:
+        s3 = get_s3_client()
+        s3.put_object(
+            Bucket=S3_BUCKET,
+            Key=s3_key,
+            Body=resp.content,
+            ContentType="image/jpeg",
+        )
+        return s3_url
+    except Exception:
         return None
 
 
@@ -88,8 +106,8 @@ def search_cards():
         ygoprodeck_id = card.get("id")
         original_image_url = card.get("card_images", [{}])[0].get("image_url", "")
 
-        # Download the image locally instead of hotlinking
-        local_image = download_card_image(original_image_url, ygoprodeck_id)
+        # Upload the image to S3
+        s3_image_url = download_card_image(original_image_url, ygoprodeck_id)
 
         card_data = {
             "ygoprodeck_id": ygoprodeck_id,
@@ -101,8 +119,8 @@ def search_cards():
             "level": card.get("level"),
             "race": card.get("race"),
             "attribute": card.get("attribute"),
-            "image_url": local_image,
-            "image_url_small": local_image,
+            "image_url": s3_image_url,
+            "image_url_small": s3_image_url,
         }
 
         # Step 3: Cache in local DB for future searches
@@ -148,11 +166,11 @@ def ensure_card_in_db(card_data):
     if existing:
         return existing["card_id"]
 
-    # Download image before saving if it's still an external URL
+    # Upload image to S3 if it's an external URL
     original_image = card_data.get("image_url", "")
-    if original_image and not original_image.startswith("/static"):
-        local_image = download_card_image(original_image, card_data["ygoprodeck_id"])
-        card_data["image_url"] = local_image
+    if original_image and "ygoprodeck" in original_image:
+        s3_image = download_card_image(original_image, card_data["ygoprodeck_id"])
+        card_data["image_url"] = s3_image
 
     cur.execute(
         """INSERT INTO cards (ygoprodeck_id, name, card_type, description,

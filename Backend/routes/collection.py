@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from db import get_db
-from routes.cards import ensure_card_in_db
+from Backend.routes.cards import ensure_card_in_db
 
 collection_bp = Blueprint("collection", __name__, url_prefix="/api/collection")
 

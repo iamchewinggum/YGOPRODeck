@@ -7,10 +7,7 @@ from flask import g
 
 load_dotenv()
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://postgres:YOUR_PASSWORD@localhost:5432/yugioh_deck",
-)
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
 def get_db():

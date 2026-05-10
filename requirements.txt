@@ -4,3 +4,4 @@ psycopg2-binary
 requests
 boto3
 gunicorn
+python-dotenv
