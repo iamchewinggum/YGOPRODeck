@@ -1,0 +1,32 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/YGOPRODeck
+            git pull origin main
+            docker stop ygoprodeck || true
+            docker rm ygoprodeck || true
+            docker build -t ygoprodeck .
+            docker run -d \
+              --name ygoprodeck \
+              -p 80:5000 \
+              --env-file .env \
+              --restart unless-stopped \
+              ygoprodeck
